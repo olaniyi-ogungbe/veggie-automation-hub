@@ -36,14 +36,14 @@ const ChatPopover = () => {
     {
       id: 'c3',
       name: 'Tunde Bakare',
-      lastMessage: 'I'd like to modify my order',
+      lastMessage: "I'd like to modify my order",
       time: '30m',
       unread: 0
     },
     {
       id: 'c4',
       name: 'Green Grocers',
-      lastMessage: 'Thanks for the update. We'll be expecting the delivery.',
+      lastMessage: "Thanks for the update. We'll be expecting the delivery.",
       time: '2h',
       unread: 0
     },
