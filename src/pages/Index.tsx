@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import DashboardStats from '@/components/DashboardStats';
 import OrdersList from '@/components/OrdersList';
@@ -28,12 +29,16 @@ const Index = () => {
             <p className="text-gray-500">Welcome back! Here's what's happening today.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
-              Generate Report
-            </Button>
-            <Button className="bg-veggie-600 hover:bg-veggie-700">
-              New Order
-            </Button>
+            <Link to="/reports">
+              <Button variant="outline">
+                Generate Report
+              </Button>
+            </Link>
+            <Link to="/orders">
+              <Button className="bg-veggie-600 hover:bg-veggie-700">
+                New Order
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -72,9 +77,11 @@ const Index = () => {
                       </div>
                     ))}
                   </div>
-                  <Button variant="ghost" className="mt-4 w-full text-veggie-600 hover:text-veggie-700 hover:bg-veggie-50">
-                    Manage Integrations <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <Link to="/integrations">
+                    <Button variant="ghost" className="mt-4 w-full text-veggie-600 hover:text-veggie-700 hover:bg-veggie-50">
+                      Manage Integrations <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
               
@@ -94,9 +101,11 @@ const Index = () => {
                       <p className="text-sm text-amber-800 font-medium">3 potential fraud attempts detected</p>
                     </div>
                   </div>
-                  <Button variant="ghost" className="mt-4 w-full text-veggie-600 hover:text-veggie-700 hover:bg-veggie-50">
-                    View Chatbot Logs <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <Link to="/chatbot-logs">
+                    <Button variant="ghost" className="mt-4 w-full text-veggie-600 hover:text-veggie-700 hover:bg-veggie-50">
+                      View Chatbot Logs <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Bell, MessageSquare, User, ChevronDown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,27 +16,30 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const NavBar: React.FC = () => {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const menuItems = [
-    { label: 'Dashboard', href: '#', active: true },
-    { label: 'Orders', href: '#', active: false },
-    { label: 'Inventory', href: '#', active: false },
-    { label: 'Customers', href: '#', active: false },
-    { label: 'Reports', href: '#', active: false },
-    { label: 'Integrations', href: '#', active: false },
+    { label: 'Dashboard', href: '/', active: currentPath === '/' },
+    { label: 'Orders', href: '/orders', active: currentPath === '/orders' },
+    { label: 'Inventory', href: '/inventory', active: currentPath === '/inventory' },
+    { label: 'Customers', href: '/customers', active: currentPath === '/customers' },
+    { label: 'Reports', href: '/reports', active: currentPath === '/reports' },
+    { label: 'Integrations', href: '/integrations', active: currentPath === '/integrations' },
   ];
 
   const MainMenu = () => (
     <div className="flex items-center space-x-6">
       {menuItems.map((item) => (
-        <a
+        <Link
           key={item.label}
-          href={item.href}
+          to={item.href}
           className={`text-sm font-medium transition-colors hover:text-veggie-600 ${
             item.active ? 'text-veggie-600' : 'text-gray-600'
           }`}
         >
           {item.label}
-        </a>
+        </Link>
       ))}
     </div>
   );
@@ -50,15 +54,15 @@ const NavBar: React.FC = () => {
       <SheetContent side="left" className="w-64">
         <div className="flex flex-col space-y-4 pt-6">
           {menuItems.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
+              to={item.href}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-veggie-50 ${
                 item.active ? 'bg-veggie-50 text-veggie-600' : 'text-gray-600'
               }`}
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </div>
       </SheetContent>
@@ -70,9 +74,9 @@ const NavBar: React.FC = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
           {isMobile && <MobileMenu />}
-          <a href="/" className="font-bold text-2xl text-veggie-700 mr-8">
+          <Link to="/" className="font-bold text-2xl text-veggie-700 mr-8">
             Veggie<span className="text-veggie-500">World</span>
-          </a>
+          </Link>
           {!isMobile && <MainMenu />}
         </div>
 
