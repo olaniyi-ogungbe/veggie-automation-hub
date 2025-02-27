@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, MessageSquare, User, ChevronDown, Menu } from 'lucide-react';
+import { User, ChevronDown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import NotificationsPopover from '@/components/NotificationsPopover';
+import ChatPopover from '@/components/ChatPopover';
 
 const NavBar: React.FC = () => {
   const isMobile = useIsMobile();
@@ -81,19 +83,8 @@ const NavBar: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5 text-gray-500" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white">
-              3
-            </span>
-          </Button>
-          
-          <Button variant="ghost" size="icon" className="relative">
-            <MessageSquare className="h-5 w-5 text-gray-500" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-veggie-500 rounded-full flex items-center justify-center text-[10px] text-white">
-              5
-            </span>
-          </Button>
+          <NotificationsPopover />
+          <ChatPopover />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -112,9 +103,15 @@ const NavBar: React.FC = () => {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>System Logs</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/profile" className="flex w-full">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/settings" className="flex w-full">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/system-logs" className="flex w-full">System Logs</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>

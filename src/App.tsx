@@ -11,6 +11,9 @@ import Customers from "./pages/Customers";
 import Reports from "./pages/Reports";
 import Integrations from "./pages/Integrations";
 import ChatbotLogs from "./pages/ChatbotLogs";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import SystemLogs from "./pages/SystemLogs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/reports" element={<Reports />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/chatbot-logs" element={<ChatbotLogs />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/system-logs" element={<SystemLogs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
