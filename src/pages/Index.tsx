@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Package, MessageSquare, ArrowRight, CreditCard } from 'lucide-react';
+import NewOrderDialog from '@/components/NewOrderDialog';
 
 const Index = () => {
   const integrations = [
@@ -34,11 +35,7 @@ const Index = () => {
                 Generate Report
               </Button>
             </Link>
-            <Link to="/orders">
-              <Button className="bg-veggie-600 hover:bg-veggie-700">
-                New Order
-              </Button>
-            </Link>
+            <NewOrderDialog />
           </div>
         </div>
 

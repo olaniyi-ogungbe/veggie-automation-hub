@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import AddCustomerDialog from '@/components/AddCustomerDialog';
 
 type Customer = {
   id: string;
@@ -77,9 +78,7 @@ const Customers = () => {
             <Button variant="outline">
               Import
             </Button>
-            <Button className="bg-veggie-600 hover:bg-veggie-700">
-              <Plus className="h-4 w-4 mr-2" /> Add Customer
-            </Button>
+            <AddCustomerDialog />
           </div>
         </div>
         

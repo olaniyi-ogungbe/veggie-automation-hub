@@ -14,6 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import NewOrderDialog from '@/components/NewOrderDialog';
+import ExportOrdersDialog from '@/components/ExportOrdersDialog';
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,12 +31,8 @@ const Orders = () => {
             <p className="text-gray-500">Manage all customer orders in one place</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
-              Export Orders
-            </Button>
-            <Button className="bg-veggie-600 hover:bg-veggie-700">
-              <Plus className="h-4 w-4 mr-2" /> New Order
-            </Button>
+            <ExportOrdersDialog />
+            <NewOrderDialog />
           </div>
         </div>
 
