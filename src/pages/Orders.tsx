@@ -23,151 +23,169 @@ const Orders = () => {
   const [showBackendDialog, setShowBackendDialog] = useState(false);
 
   const backendExportCode = `
-// server.js - A simple Express.js backend for exporting orders
+<?php
 
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const { Parser } = require('json2csv');
-const PDFDocument = require('pdfkit');
+namespace App\\Http\\Controllers;
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+use Illuminate\\Http\\Request;
+use App\\Models\\Order;
+use Illuminate\\Support\\Facades\\Response;
+use PDF;
 
-app.use(cors());
-app.use(express.json());
+class OrderExportController extends Controller
+{
+    /**
+     * Export orders based on filters
+     *
+     * @param  \\Illuminate\\Http\\Request  $request
+     * @return \\Illuminate\\Http\\Response
+     */
+    public function export(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'format' => 'required|in:json,csv,excel,pdf',
+            'dateRange' => 'nullable|string',
+            'startDate' => 'nullable|date',
+            'endDate' => 'nullable|date',
+            'status' => 'nullable|string',
+        ]);
 
-// Sample data - replace with your database queries
-const getOrdersData = (dateRange, status) => {
-  // This would be a database query in a real application
-  return [
-    { id: 'ORD-1001', customer: 'John Doe', date: '2023-04-15', status: 'Delivered', total: 95.60 },
-    { id: 'ORD-1002', customer: 'Jane Smith', date: '2023-04-16', status: 'Processing', total: 45.25 },
-    // Add more sample data here
-  ];
-};
+        // Get filter parameters
+        $format = $request->input('format');
+        $dateRange = $request->input('dateRange');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $status = $request->input('status');
 
-app.post('/api/export-orders', (req, res) => {
-  try {
-    const { format, dateRange, startDate, endDate, status } = req.body;
-    
-    // Get the data based on filters
-    const data = getOrdersData(dateRange, status);
-    
-    // Handle different export formats
-    switch (format) {
-      case 'csv':
-        return exportCSV(res, data);
-      case 'excel':
-        return exportExcel(res, data);
-      case 'pdf':
-        return exportPDF(res, data);
-      default:
-        return res.json(data);
+        // Build the query with filters
+        $query = Order::query();
+        
+        // Apply date filter
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        // Apply status filter
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+        
+        // Get data
+        $orders = $query->get();
+        
+        // Handle different export formats
+        switch ($format) {
+            case 'json':
+                return $this->exportJson($orders);
+            case 'csv':
+                return $this->exportCsv($orders);
+            case 'excel':
+                return $this->exportExcel($orders);
+            case 'pdf':
+                return $this->exportPdf($orders);
+            default:
+                return response()->json(['error' => 'Invalid format'], 400);
+        }
     }
-  } catch (error) {
-    console.error('Export error:', error);
-    res.status(500).json({ error: 'Export failed' });
-  }
-});
 
-// CSV Export
-function exportCSV(res, data) {
-  try {
-    const fields = Object.keys(data[0]);
-    const parser = new Parser({ fields });
-    const csv = parser.parse(data);
-    
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=orders-export.csv');
-    return res.send(csv);
-  } catch (error) {
-    console.error('CSV export error:', error);
-    res.status(500).json({ error: 'CSV export failed' });
-  }
+    /**
+     * Export as JSON
+     */
+    private function exportJson($orders)
+    {
+        return response()->json($orders);
+    }
+
+    /**
+     * Export as CSV
+     */
+    private function exportCsv($orders)
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=orders-export.csv',
+        ];
+
+        $callback = function() use ($orders) {
+            $file = fopen('php://output', 'w');
+            
+            // Add headers
+            fputcsv($file, ['ID', 'Customer', 'Date', 'Status', 'Total']);
+            
+            // Add rows
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->id,
+                    $order->customer_name,
+                    $order->created_at->format('Y-m-d'),
+                    $order->status,
+                    $order->total
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export as Excel (using Laravel Excel package)
+     */
+    private function exportExcel($orders)
+    {
+        // Requires maatwebsite/excel package
+        // composer require maatwebsite/excel
+        
+        return (new \\App\\Exports\\OrdersExport($orders))
+            ->download('orders-export.xlsx');
+    }
+
+    /**
+     * Export as PDF (using Laravel DomPDF)
+     */
+    private function exportPdf($orders)
+    {
+        // Requires barryvdh/laravel-dompdf package
+        // composer require barryvdh/laravel-dompdf
+        
+        $pdf = PDF::loadView('exports.orders', ['orders' => $orders]);
+        return $pdf->download('orders-export.pdf');
+    }
 }
 
-// Excel Export (simple CSV with Excel content type)
-function exportExcel(res, data) {
-  try {
-    const fields = Object.keys(data[0]);
-    const parser = new Parser({ fields });
-    const csv = parser.parse(data);
-    
-    res.setHeader('Content-Type', 'application/vnd.ms-excel');
-    res.setHeader('Content-Disposition', 'attachment; filename=orders-export.xls');
-    return res.send(csv);
-  } catch (error) {
-    console.error('Excel export error:', error);
-    res.status(500).json({ error: 'Excel export failed' });
-  }
-}
+/*
+Route definition (routes/web.php or routes/api.php):
 
-// PDF Export
-function exportPDF(res, data) {
-  try {
-    const doc = new PDFDocument();
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=orders-export.pdf');
-    
-    doc.pipe(res);
-    
-    // Add title
-    doc.fontSize(16).text('Orders Export', { align: 'center' });
-    doc.moveDown();
-    
-    // Add table headers
-    const fields = Object.keys(data[0]);
-    let yPos = doc.y;
-    let xPos = 50;
-    
-    fields.forEach(field => {
-      doc.fontSize(10).text(field, xPos, yPos);
-      xPos += 100;
-    });
-    
-    doc.moveDown();
-    
-    // Add table rows
-    data.forEach(row => {
-      xPos = 50;
-      yPos = doc.y;
-      
-      fields.forEach(field => {
-        doc.fontSize(9).text(row[field], xPos, yPos);
-        xPos += 100;
-      });
-      
-      doc.moveDown();
-    });
-    
-    doc.end();
-  } catch (error) {
-    console.error('PDF export error:', error);
-    res.status(500).json({ error: 'PDF export failed' });
-  }
-}
+Route::post('/api/export-orders', [OrderExportController::class, 'export']);
 
-app.listen(PORT, () => {
-  console.log(\`Export server running on port \${PORT}\`);
-});
+Additional files required:
 
-// Required packages:
-// npm install express cors json2csv pdfkit
-`;
+1. For Excel exports:
+- Create app/Exports/OrdersExport.php class
+- Install: composer require maatwebsite/excel
+
+2. For PDF exports:
+- Create resources/views/exports/orders.blade.php template
+- Install: composer require barryvdh/laravel-dompdf
+
+3. Order Model:
+- Create database migrations and Order model
+- Run: php artisan make:model Order -m
+*/`;
 
   const copyBackendCode = () => {
     navigator.clipboard.writeText(backendExportCode);
-    alert('Backend code copied to clipboard!');
+    alert('Laravel backend code copied to clipboard!');
   };
 
   const downloadBackendCode = () => {
-    const blob = new Blob([backendExportCode], { type: 'text/javascript' });
+    const blob = new Blob([backendExportCode], { type: 'text/x-php' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "export-orders-backend.js";
+    a.download = "OrderExportController.php";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -188,7 +206,7 @@ app.listen(PORT, () => {
             <DialogTrigger asChild onClick={() => setShowBackendDialog(true)}>
               <Button variant="outline" className="gap-2">
                 <Code className="h-4 w-4" />
-                Backend Code
+                Laravel Backend
               </Button>
             </DialogTrigger>
             <ExportOrdersDialog />
@@ -282,9 +300,9 @@ app.listen(PORT, () => {
       <Dialog open={showBackendDialog} onOpenChange={setShowBackendDialog}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
-            <DialogTitle>Node.js Backend for Order Exports</DialogTitle>
+            <DialogTitle>Laravel Backend for Order Exports</DialogTitle>
             <DialogDescription>
-              Copy or download this Express.js backend code to implement server-side order exports.
+              Copy or download this Laravel controller code to implement server-side order exports.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
