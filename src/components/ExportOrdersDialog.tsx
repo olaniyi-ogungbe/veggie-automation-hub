@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format as formatDate } from "date-fns";
+import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 interface ExportOrdersDialogProps {
@@ -18,7 +18,7 @@ interface ExportOrdersDialogProps {
 
 const ExportOrdersDialog: React.FC<ExportOrdersDialogProps> = ({ trigger, className }) => {
   const [open, setOpen] = useState(false);
-  const [exportFormat, setExportFormat] = useState("csv");
+  const [format, setFormat] = useState("csv");
   const [dateRange, setDateRange] = useState("last30");
   const [date, setDate] = React.useState<Date>();
 
@@ -50,7 +50,7 @@ const ExportOrdersDialog: React.FC<ExportOrdersDialogProps> = ({ trigger, classN
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label>Export Format</Label>
-              <RadioGroup defaultValue="csv" onValueChange={setExportFormat} className="flex flex-col space-y-1">
+              <RadioGroup defaultValue="csv" onValueChange={setFormat} className="flex flex-col space-y-1">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="csv" id="csv" />
                   <Label htmlFor="csv" className="font-normal">CSV</Label>
@@ -102,7 +102,7 @@ const ExportOrdersDialog: React.FC<ExportOrdersDialogProps> = ({ trigger, classN
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? formatDate(date, "PPP") : <span>Pick a date</span>}
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -127,7 +127,7 @@ const ExportOrdersDialog: React.FC<ExportOrdersDialogProps> = ({ trigger, classN
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? formatDate(date, "PPP") : <span>Pick a date</span>}
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
